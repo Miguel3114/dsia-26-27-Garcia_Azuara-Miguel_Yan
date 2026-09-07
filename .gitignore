@@ -1,0 +1,28 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+Envs/
+
+# Secretos
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.egg-info/
+.coverage
+htmlcov/
+dist/
+build/
+
+# IDE / sistema
+.DS_Store
+.idea/
+.vscode/
