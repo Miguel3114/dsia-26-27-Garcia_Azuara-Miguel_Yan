@@ -1,4 +1,4 @@
-# Entornos virtuales
+# Entornos
 .venv/
 venv/
 env/
@@ -22,7 +22,8 @@ htmlcov/
 dist/
 build/
 
-# IDE / sistema
+# OS / IDE
 .DS_Store
 .idea/
 .vscode/
+*.swp
