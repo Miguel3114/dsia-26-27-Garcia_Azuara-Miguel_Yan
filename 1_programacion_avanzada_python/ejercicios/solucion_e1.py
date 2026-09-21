@@ -3,10 +3,15 @@ import json
 import pandas as pd
 
 
-ruta = Path("datos") / "ventas.csv"
+DATA_DIR = Path("1_programacion_avanzada_python/datos")
 
-ventas = pd.read_csv(ruta)
+def cargar_ventas(path: Path) -> pd.DataFrame:
+    if not path.exists():
+        raise FileNotFoundError(f"No existe el fichero: {path}")
+    return pd.read_csv(path)
 
+
+ventas = cargar_ventas(DATA_DIR / "ventas.csv")
 
 print("Shape:")
 print(ventas.shape)
@@ -84,7 +89,7 @@ print("\nClientes con más de una compra:")
 print(clientes_mas_una_compra)
 
 
-ruta_limpias = Path("datos") / "ventas_limpias.csv"
+ruta_limpias = Path("1_programacion_avanzada_python/datos") / "ventas_limpias.csv"
 
 validos.to_csv(
     ruta_limpias,
@@ -99,7 +104,7 @@ calidad = {
     "importe_total": float(validos["importe"].sum())
 }
 
-ruta_json = Path("datos") / "calidad_datos.json"
+ruta_json = Path("1_programacion_avanzada_python/datos") / "calidad_datos.json"
 
 with open(ruta_json, "w", encoding="utf-8") as archivo:
     json.dump(
