@@ -10,3 +10,7 @@ Python 3.12
 
 ```bash
 python -m venv .venv
+```
+
+## Proyecto
+url de los datos de Seoul bike sharing demand: https://archive.ics.uci.edu/dataset/560/seoul+bike+sharing+demand
