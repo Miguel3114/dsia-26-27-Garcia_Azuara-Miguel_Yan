@@ -1,24 +1,24 @@
-from pathlib import Path
-from typing import Protocol
+    from pathlib import Path
+    from typing import Protocol
 
-import pandas as pd
-
-
-class DataLoadError(Exception):
-    pass
+    import pandas as pd
 
 
-class SalesRepository(Protocol):
-    def load(self) -> pd.DataFrame:
-        ...
+    class DataLoadError(Exception):
+        pass
 
 
-class CsvSalesRepository:
-    def __init__(self, path: Path) -> None:
-        self.path = path
+    class SalesRepository(Protocol):
+        def load(self) -> pd.DataFrame:
+            ...
 
-    def load(self) -> pd.DataFrame:
-        if not self.path.exists():
-            raise DataLoadError(f"No existe el fichero: {self.path}")
 
-        return pd.read_csv(self.path)
+    class CsvSalesRepository:
+        def __init__(self, path: Path) -> None:
+            self.path = path
+
+        def load(self) -> pd.DataFrame:
+            if not self.path.exists():
+                raise DataLoadError(f"No existe el fichero: {self.path}")
+
+            return pd.read_csv(self.path)
