@@ -2,6 +2,8 @@ import pandas as pd
 
 
 def total_by_region(frame: pd.DataFrame) -> pd.Series:
+    """Calcula el importe total de ventas por región"""
+
     work = frame.copy()
 
     work["importe"] = (

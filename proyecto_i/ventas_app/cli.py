@@ -10,6 +10,8 @@ from ventas_app.loader import (
 )
 
 def parse_args() -> argparse.Namespace:
+    """Obtiene las rutas de entrada y salida desde la terminal"""
+
     parser = argparse.ArgumentParser(
         description="Procesamiento de ventas"
     )
@@ -30,6 +32,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Ejecuta la carga, validación y análisis de ventas"""
+
     args = parse_args()
 
     input_path = Path(args.input)
