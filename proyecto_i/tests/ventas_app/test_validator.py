@@ -84,7 +84,7 @@ def test_validate_unidades_invalidas(unidades):
 def test_csv_real():
     path = (
         Path(__file__).resolve().parents[2]
-        / "Datos"
+        / "datos"
         / "ventas.csv"
     )
 
