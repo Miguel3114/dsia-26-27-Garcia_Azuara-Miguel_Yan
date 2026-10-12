@@ -1,16 +1,16 @@
 # DSIA 2026-2027 — Miguel García
 
-Repositorio personal de la asignatura DSIA.
+Repositorio personal de la asignatura **Desarrollo de Soluciones de IA**.
 
 ## Entorno
 
 Python 3.12
 
-## Crear el entorno virtual
+## Proyectos
 
-```bash
-python -m venv .venv
-```
+### Proyecto I — Programación avanzada en Python
 
-## Proyecto
-url de los datos de Seoul bike sharing demand: https://archive.ics.uci.edu/dataset/560/seoul+bike+sharing+demand
+- **Parte A:** procesamiento y validación de datos de ventas.
+- **Parte B:** procesamiento de datos meteorológicos mediante la API de Open-Meteo.
+
+[Documentación del Proyecto I](proyecto_i/README.md)
