@@ -27,3 +27,6 @@ build/
 .idea/
 .vscode/
 *.swp
+
+# Csv validado
+madrid_weather_2025.csv
