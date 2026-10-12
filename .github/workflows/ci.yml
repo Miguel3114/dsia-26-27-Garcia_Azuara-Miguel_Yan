@@ -3,7 +3,9 @@ name: Proyecto I CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - proyectoi/parteA
   pull_request:
 
 jobs:
