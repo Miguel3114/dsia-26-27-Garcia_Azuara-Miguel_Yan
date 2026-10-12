@@ -42,6 +42,8 @@ class OpenMeteoRepository:
         start_date: str,
         end_date: str,
     ) -> None:
+        """Inicializa las coordenadas y el intervalo de fechas"""
+
         self.latitude = latitude
         self.longitude = longitude
         self.start_date = start_date
