@@ -2,10 +2,14 @@ import pandas as pd
 
 
 class ValidationError(Exception):
+    """Error cuando faltan columnas obligatorias"""
+    
     pass
 
 
 def validate(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Separa los registros de ventas válidos e inválidos"""
+
     required_columns = {
         "region",
         "producto",
