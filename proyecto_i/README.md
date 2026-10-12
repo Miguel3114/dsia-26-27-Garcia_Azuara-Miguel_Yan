@@ -84,4 +84,4 @@ GitHub Actions ejecuta automáticamente los tests de ambas partes y comprueba qu
 
 **Workflow:** [ci.yml](../.github/workflows/ci.yml)
 
-**Evidencia:** [Ejecución correcta en GitHub Actions](https://github.com/Miguel3114/dsia-26-27-Garcia_Azuara-Miguel_Yan/actions/runs/38238576057)
+**Evidencia:** [Ejecución correcta en GitHub Actions](https://github.com/Miguel3114/dsia-26-27-Garcia_Azuara-Miguel_Yan/actions/runs/38241008288)
