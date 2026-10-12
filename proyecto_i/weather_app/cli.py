@@ -19,6 +19,8 @@ from weather_app.validator import (
 
 
 def parse_args() -> argparse.Namespace:
+    """Obtiene las fechas de consulta y la ruta de salida"""
+
     parser = argparse.ArgumentParser(
         description="Procesamiento de datos meteorológicos"
     )
@@ -45,6 +47,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Ejecuta la carga, validación y análisis meteorológico"""
+
     args = parse_args()
 
     output_path = Path(args.output)
