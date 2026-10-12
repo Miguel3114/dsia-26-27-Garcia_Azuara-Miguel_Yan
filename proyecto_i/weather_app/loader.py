@@ -5,11 +5,17 @@ import requests
 
 
 class DataLoadError(Exception):
+    """Error al cargar los datos meteorológicos"""
+
     pass
 
 
 class WeatherRepository(Protocol):
+    """Define el contrato para cargar datos meteorológicos"""
+
     def load(self) -> pd.DataFrame:
+        """Devuelve los datos meteorológicos en un DataFrame"""
+
         ...
 
 
@@ -25,6 +31,8 @@ COLUMN_MAP = {
 
 
 class OpenMeteoRepository:
+    """Obtiene datos meteorológicos desde la API de Open-Meteo"""
+
     URL = "https://archive-api.open-meteo.com/v1/archive"
 
     def __init__(
@@ -40,6 +48,8 @@ class OpenMeteoRepository:
         self.end_date = end_date
 
     def load(self) -> pd.DataFrame:
+        """Descarga los datos horarios y devuelve un DataFrame"""
+
         params = {
             "latitude": self.latitude,
             "longitude": self.longitude,
