@@ -1,36 +1,38 @@
-
-name: Proyecto I CI
+name: DSIA CI
 
 on:
   push:
-    branches:
-      - main
-      - proyectoi/parteA
-      - proyectoi/parteB
+    branches: [main]
   pull_request:
 
 jobs:
-  test:
+  test_proyecto_i:
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: proyecto_i
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
+      - name: Tests Proyecto I
+        run: python -m pytest -q --cov=ventas_app --cov=emt_app --cov-report=term-missing --cov-fail-under=60
 
-      - name: Tests and coverage
+  test_proyecto_ii:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
         run: |
-          python -m pytest -q --cov=ventas_app --cov=emt_app --cov-report=term-missing --cov-fail-under=60
+          python -m pip install --upgrade pip
+          python -m pip install -r proyecto_ii/requirements.txt
+      - name: Tests Proyecto II (mock, sin Internet)
+        run: python -m pytest -q -c pytest.ini proyecto_ii/tests
