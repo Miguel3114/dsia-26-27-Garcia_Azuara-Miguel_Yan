@@ -11,6 +11,6 @@ Python 3.12
 ### Proyecto I — Programación avanzada en Python
 
 - **Parte A:** procesamiento y validación de datos de ventas.
-- **Parte B:** procesamiento de datos meteorológicos mediante la API de Open-Meteo.
+- **Parte B:** procesamiento de la demanda de viajeros de los autobuses de la EMT de Madrid.
 
 [Documentación del Proyecto I](proyecto_i/README.md)

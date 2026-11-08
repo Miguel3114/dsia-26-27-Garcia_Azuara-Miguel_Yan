@@ -25,40 +25,59 @@ Procesamiento de datos de ventas mediante carga de CSV, validación de registros
 **Ejecución:**
 
 ```bash
-python -m ventas_app.cli --input datos/ventas.csv --output ventas_validas.csv
+python -m ventas_app.cli --input datos/ventas.csv --output datos/ventas_limpias.csv
 ```
 
-## Parte B — Open-Meteo
+## Parte B — Demanda de viajeros EMT Madrid
 
-Procesamiento de datos meteorológicos históricos de Madrid obtenidos mediante la API REST de Open-Meteo.
+Procesamiento de la demanda de viajeros de los autobuses de la EMT de Madrid por **línea, día y franja horaria**.
 
-**Fuente:** https://open-meteo.com/en/docs/historical-weather-api
+**Fuente:** EMT Madrid, conjunto de datos *Demanda diaria de viajeros de autobús* — https://datos.emtmadrid.es/dataset/demanda-diaria-viajeros-autobus.
 
-**Licencia:** CC BY 4.0 (requiere atribución). API gratuita para uso no comercial.
+**Ficheros:** un CSV por año (2019–2025, descargables en un ZIP) y el CSV del año en curso, que se actualiza cada mes:
+`https://datos.emtmadrid.es/dataset/29b27217-429f-44a0-a90a-2db7f13529b6/resource/07622d4b-6c64-43ea-a398-69134d6128bc/download/2026demdialineafranjaanual.csv`
 
-**Condiciones de uso:** https://open-meteo.com/en/terms
+**Licencia / condiciones de uso:** datos abiertos de la EMT; reutilización con atribución de la fuente.
 
-**Fecha de consulta:** 5 de octubre de 2026
+**Fecha de consulta:** 7 de noviembre de 2026.
 
-**Datos:** temperatura, humedad, presión, nubosidad, precipitación y velocidad del viento.
+**Datos:** `Fecha;Linea;Franja;TotalViajeros`, separador `;`. El loader los renombra a `date`, `line`, `time_slot`, `passengers`.
 
-**Validación:** columnas obligatorias, tipos de datos, valores nulos y rangos válidos.
+**Validación:**
+- Columnas obligatorias (`ValidationError` si falta alguna).
+- Fecha con formato `YYYY-MM-DD`.
+- Línea normalizada a texto de 3 dígitos (`1` → `001`).
+- Franja `H00`–`H23` (horas del día) o `M00`–`M07` (madrugada de los búhos nocturnos, líneas 501–528).
+- Viajeros numéricos, enteros y no negativos.
+- Sin duplicados por (fecha, línea, franja): se conserva el primero.
 
 **Métricas:**
-- Temperatura media.
-- Humedad media.
-- Precipitación total.
-- Velocidad máxima del viento.
+- Viajeros totales.
+- Media de viajeros por línea, día y franja.
+- Franja horaria con más viajeros.
+- Total de viajeros por línea (las 5 líneas con más demanda).
 
-**Ejecución y descarga de datos:**
+**Comandos desde la carpeta proyecto_i:**
+
+Ejecución con descarga desde el portal (descarga el CSV de 2026 a `datos/emt_2026_completo.csv`, ignorado por Git, y procesa las fechas pedidas):
 
 ```bash
-python -m weather_app.cli --start-date 2025-01-01 --end-date 2025-12-31 --output datos/madrid_weather_2025.csv
+python -m emt_app.cli --start-date 2026-09-01 --end-date 2026-09-02 --output datos/emt_2026_09_muestra.csv
 ```
+
+Ejecución con CSV ya descargados (`--input` admite un fichero o una carpeta con los CSV anuales):
+
+```bash
+python -m emt_app.cli --start-date 2026-09-01 --end-date 2026-09-02 --input datos/emt_2026_completo.csv --output datos/emt_2026_09_local.csv
+```
+
+La muestra incluida en el repositorio (`datos/emt_2026_09_muestra.csv`, dos días, 7746 filas) se genera con el primer comando. Los ficheros completos no se suben (más de un millón de filas por año).
+
+**Diseño (DIP):** `cli.py` trabaja contra el protocolo `DemandRepository`, con dos implementaciones intercambiables: `EmtApiRepository` descarga el CSV del portal con `requests` y `CsvEmtRepository` lee CSV locales (un fichero o una carpeta). Ambas filtran el intervalo de fechas.
 
 ## Tests
 
-Los tests se realizan con pytest y cubren los módulos `loader`, `validator`, `metrics` y `cli` de ambas partes.
+Los tests se realizan con pytest y cubren los módulos `loader`, `validator`, `metrics` y `cli` de ambas partes. Ningún test accede a Internet: las descargas se simulan con `monkeypatch` y los ficheros se crean con `tmp_path`.
 
 Ejecutar todos los tests:
 
@@ -75,7 +94,7 @@ python -m pytest -q -m "not integration"
 Comprobar la cobertura mínima del 60 %:
 
 ```bash
-python -m pytest -q --cov=ventas_app --cov=weather_app --cov-report=term-missing --cov-fail-under=60
+python -m pytest -q --cov=ventas_app --cov=emt_app --cov-report=term-missing --cov-fail-under=60
 ```
 
 ## Integración continua
@@ -84,4 +103,4 @@ GitHub Actions ejecuta automáticamente los tests de ambas partes y comprueba qu
 
 **Workflow:** [ci.yml](../.github/workflows/ci.yml)
 
-**Evidencia:** [Ejecución correcta en GitHub Actions](https://github.com/Miguel3114/dsia-26-27-Garcia_Azuara-Miguel_Yan/actions/runs/38241008288)
+**Evidencia:** [Ejecución correcta en GitHub Actions](https://github.com/Miguel3114/dsia-26-27-Garcia_Azuara-Miguel_Yan/actions/runs/42474238559) 
