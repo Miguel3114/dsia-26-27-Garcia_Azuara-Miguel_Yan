@@ -33,4 +33,4 @@ jobs:
 
       - name: Tests and coverage
         run: |
-          python -m pytest -q --cov=ventas_app --cov=weather_app --cov-report=term-missing --cov-fail-under=60
+          python -m pytest -q --cov=ventas_app --cov=emt_app --cov-report=term-missing --cov-fail-under=60
