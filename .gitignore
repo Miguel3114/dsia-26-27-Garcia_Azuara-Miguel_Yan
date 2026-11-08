@@ -28,5 +28,10 @@ build/
 .vscode/
 *.swp
 
+.venv
+.env
+
+
 # Csv validado
-madrid_weather_2025.csv
+proyecto_i/datos/emt_2026_completo.csv
+proyecto_i/datos/emt_2026_09_local.csv
