@@ -28,10 +28,11 @@ build/
 .vscode/
 *.swp
 
-.venv
-.env
-
-
 # Csv validado
 proyecto_i/datos/emt_2026_completo.csv
 proyecto_i/datos/emt_2026_09_local.csv
+proyecto_ii/data/*.csv
+proyecto_ii/data/*.zip
+proyecto_ii/data/raw/
+proyecto_ii/output/
+proyecto_ii/models/*.joblib
