@@ -33,3 +33,5 @@ Se ha utilizado como apoyo para:
 - Revisar el pipeline y el procesamiento e inferencia.
 - Pruebas automatizadas.
 - Resolver errores y documentación.
+
+**Qué acepté:** la reutilización de `EmtApiRepository`/`CsvEmtRepository` en la ingesta, la estructura `load/transform/save` con el umbral de calidad y el cliente con `mock` por defecto. Revisé y ejecuté el código antes de incorporarlo.

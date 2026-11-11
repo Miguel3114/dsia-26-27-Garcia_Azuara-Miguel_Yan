@@ -51,7 +51,7 @@ Los comandos siguientes se ejecutan **desde la raíz del repositorio** y no requ
 python -m proyecto_ii.ingest --start-date 2026-01-01 --end-date 2026-08-31 --output proyecto_ii/data/emt_train.csv
 ```
 
-Si se descomprimen los CSV históricos en `proyecto_ii/data/raw/`, `--input` los lee todos y `--start-date`/`--end-date` seleccionan el periodo. En este proyecto se entrena con 2024-01-01 a 2026-08-31.
+Si se descomprimen los CSV históricos en `proyecto_ii/data/raw/`, `--input` los lee todos y `--start-date`/`--end-date` seleccionan el periodo. En este proyecto se usan los datos de 2024-01-01 a 2026-08-31: el modelo se ajusta con los días hasta 2026-02-17 y el resto se usa para evaluar.
 
 ```powershell
 python -m proyecto_ii.ingest --start-date 2024-01-01 --end-date 2026-08-31 --input proyecto_ii/data/raw --output proyecto_ii/data/emt_train.csv
@@ -119,7 +119,7 @@ Las franjas `M00`–`M07` de servicios nocturnos se representan mediante horas d
 
 Se divide cronológicamente el conjunto por **fechas distintas**: 80 % de los días iniciales para entrenar y 20 % de los días finales para evaluar.
 
-Los perfiles históricos usados para evaluar se calculan **solo con el periodo de entrenamiento**, para que el test no influya en ellos. El modelo guardado recalcula los perfiles con todo el histórico, porque al predecir fechas futuras ese periodo ya es conocido.
+Los perfiles históricos usados para evaluar se calculan **solo con el periodo de entrenamiento**, para que el test no influya en ellos. El modelo guardado recalcula los perfiles con todo el histórico, porque al predecir fechas futuras ese periodo ya es conocido. El RandomForest guardado es el ajustado con el periodo de entrenamiento; solo los perfiles se recalculan con todo el histórico.
 
 Las métricas calculadas automáticamente en `proyecto_ii/output/train/metrics.json` son:
 
@@ -132,7 +132,7 @@ Las métricas calculadas automáticamente en `proyecto_ii/output/train/metrics.j
 | `baseline_mae` | Error medio de la referencia histórica |
 | `improvement_vs_baseline` | Mejora relativa de MAE respecto al baseline |
 
-Datos limpios: 2024-01-01 a 2026-08-31, 3.625.428 filas y 274 líneas, sin filas descartadas (`output/clean_train/metrics.json`). Tras excluir las líneas con menos de 30 días de datos, el modelo usa 245 líneas regulares.
+Datos limpios: 2024-01-01 a 2026-08-31, 3.625.428 filas y 274 líneas, sin filas descartadas (`output/clean_train/metrics.json`). Tras excluir las líneas con menos de 30 días de datos quedan 248 líneas regulares, de las que 245 aparecen en el periodo de entrenamiento.
 
 **Evaluación cronológica** (`output/train/metrics.json`): entrenamiento del 2024-01-01 al 2026-02-17 (2.890.731 filas) y test del 2026-02-18 al 2026-08-31 (727.090 filas).
 
@@ -160,7 +160,7 @@ Ejemplo opcional de inferencia con el proveedor real, solo si la cuenta dispone 
 python -m proyecto_ii.predict --input proyecto_ii/output/clean_inference/clean.csv --model proyecto_ii/models/demand_model.joblib --output-dir proyecto_ii/output/inference_hf --provider hf --hf-model openai/gpt-oss-20b
 ```
 
-Si Hugging Face devuelve `402 Payment Required`, la llamada se rechaza por falta de créditos; **no** es necesario pagar para ejecutar la demostración local con `mock`. Los tests simulan el SDK y los errores de proveedor, sin llamadas reales en CI.
+No se ha podido realizar la prueba con Hugging Face debido a que salta un error 402 por falta de créditos ya que la cuenta no dispone de créditos de inferencia y habría que pagar para comprarlos.
 
 ## Tests e integración continua
 
@@ -173,7 +173,7 @@ python -m pytest -q -c pytest.ini
 
 40 tests del Proyecto II, incluidos la carga e inferencia del modelo sklearn y el cliente IA simulado (402, reintento ante 503). El workflow `.github/workflows/ci.yml` los ejecuta con Python 3.12 en modo `mock`, sin red ni token.
 
-# Continuidad hacia el Proyecto III
+## Continuidad hacia el Proyecto III
 
 Se reutilizarán la ingesta, la validación, la preparación de características, el modelo serializado (`demand_model.joblib`) y el cliente de IA. Sobre esta base se añadirá una API de predicción y una interfaz web o dashboard, con pruebas, gestión de errores, despliegue y monitorización.
 
