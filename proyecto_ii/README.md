@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Automatizar el tratamiento de datos públicos de la Empresa Municipal de Transportes (EMT) de Madrid y entrenar un modelo de **regresión** que estime el número de viajeros de una línea de autobús en una fecha y franja horaria. La solución incluye ingesta, validación, métricas, entrenamiento con scikit-learn, inferencia y un cliente de IA con proveedor simulado (`mock`) o Hugging Face (`hf`).
+Automatizar el tratamiento de datos públicos de la Empresa Municipal de Transportes (EMT) de Madrid y entrenar un modelo de **regresión** que estime el número de viajeros de una línea de autobús en una fecha y franja horaria. La solución incluye ingesta, validación, métricas, entrenamiento con scikit-learn, inferencia y un cliente de IA con proveedor simulado (`mock`), Hugging Face (`hf`) o Nemotron de NVIDIA (`nvidia`).
 
 **Motivación:** conocer la demanda esperada por línea y franja ayuda a planificar frecuencias y aglomeraciones, y a anticipar picos en festivos o fines de semana.
 
@@ -39,11 +39,11 @@ python -m venv .venv
 python -m pip install -r proyecto_ii/requirements.txt
 ```
 
-Para usar Hugging Face (opcional), copiar `.env.example` de la raíz a `.env` y rellenar `HF_TOKEN`. `.env` está en `.gitignore` y no se sube a Git; sin token, todo funciona en modo `mock`.
+Para usar un proveedor real de IA (opcional), copiar `.env.example` de la raíz a `.env` y rellenar `HF_TOKEN` (Hugging Face) o `NVIDIA_API_KEY` (clave `nvapi-...` de [build.nvidia.com](https://build.nvidia.com)). `.env` está en `.gitignore` y no se sube a Git; sin claves, todo funciona en modo `mock`.
 
 ## Ejecución paso a paso
 
-Los comandos siguientes se ejecutan **desde la raíz del repositorio** y no requieren token de Hugging Face. Los resultados publicados en este README se obtuvieron con los CSV de 2024–2026 (segunda variante del paso 1). La primera variante, solo con 2026, sirve para probar la cadena sin descargar los históricos.
+Los comandos siguientes se ejecutan **desde la raíz del repositorio** y no requieren ninguna clave de proveedor de IA. Los resultados publicados en este README se obtuvieron con los CSV de 2024–2026 (segunda variante del paso 1). La primera variante, solo con 2026, sirve para probar la cadena sin descargar los históricos.
 
 ### 1. Ingesta de datos de entrenamiento
 
@@ -93,7 +93,7 @@ La inferencia genera:
 
 - `predictions.csv`: fecha, línea, franja, viajeros reales (si están disponibles), baseline y demanda estimada.
 - `metrics.json`: filas procesadas, filas predichas, total de viajeros estimados y, si se conoce el valor real, MAE y MAE del baseline.
-- `ai_summary.json`: texto, proveedor y tarea del cliente IA.
+- `ai_summary.json`: texto, proveedor, tarea y modelo del cliente IA.
 - `run.log`: eventos de la ejecución y posibles errores.
 
 El modo `mock` devuelve un texto fijo y no realiza llamadas a servicios externos.
@@ -145,22 +145,32 @@ Métricas adicionales del modelo: RMSE 93,3 · R² 0,928 · WAPE 15,7 %.
 
 **Inferencia sobre septiembre de 2026**, un mes no usado para entrenar (`output/inference/metrics.json`): se predijeron 113.794 de 114.079 filas. Las 285 restantes son combinaciones línea-franja sin historial en el modelo (líneas nuevas o especiales, o franjas no vistas). MAE de **55,3** frente a 64,1 del baseline, una mejora del 13,7 %.
 
-## Integración con Hugging Face
+## Integración con IA generativa (Hugging Face y NVIDIA)
 
 El modelo sklearn realiza todas las predicciones numéricas. El cliente `ai_api_client.py` genera únicamente un resumen textual **a partir de agregados** de las predicciones; no se envía el CSV completo al modelo de lenguaje.
 
-- `--provider mock`: proveedor simulado, reproducible y usado en tests/CI.
-- `--provider hf`: usa `huggingface_hub.InferenceClient.chat_completion`, con `HF_TOKEN` y modelo configurable.
-- **Tarea:** `chat_completion`.
-- **Modelo por defecto:** `openai/gpt-oss-20b` (puede cambiarse mediante `HF_MODEL` o `--hf-model`).
+| Proveedor | Uso | SDK y endpoint | Tarea | Modelo por defecto | Configuración |
+| --- | --- | --- | --- | --- | --- |
+| `mock` | Por defecto, tests y CI | Texto fijo, sin red | — | — | Ninguna |
+| `hf` | Proveedor recomendado por el enunciado | `huggingface_hub.InferenceClient` (timeout 15 s) | `chat_completion` | `openai/gpt-oss-20b` | `HF_TOKEN`, `HF_MODEL` |
+| `nvidia` | Proveedor alternativo | SDK `openai` contra `https://integrate.api.nvidia.com/v1` (timeout 60 s) | `chat.completions` | `nvidia/nemotron-3.5-super-vl-120b-a12b` | `NVIDIA_API_KEY`, `NVIDIA_MODEL` |
 
-Ejemplo opcional de inferencia con el proveedor real, solo si la cuenta dispone de acceso:
+El modelo también puede cambiarse con `--hf-model`, que se aplica al proveedor elegido.
+
+Ejemplos opcionales con proveedor real, solo si la cuenta dispone de acceso:
 
 ```powershell
-python -m proyecto_ii.predict --input proyecto_ii/output/clean_inference/clean.csv --model proyecto_ii/models/demand_model.joblib --output-dir proyecto_ii/output/inference_hf --provider hf --hf-model openai/gpt-oss-20b
+python -m proyecto_ii.predict --input proyecto_ii/output/clean_inference/clean.csv --model proyecto_ii/models/demand_model.joblib --output-dir proyecto_ii/output/inference_hf --provider hf
+python -m proyecto_ii.predict --input proyecto_ii/output/clean_inference/clean.csv --model proyecto_ii/models/demand_model.joblib --output-dir proyecto_ii/output/inference_nvidia --provider nvidia
 ```
 
-No se ha podido realizar la prueba con Hugging Face debido a que salta un error 402 por falta de créditos ya que la cuenta no dispone de créditos de inferencia y habría que pagar para comprarlos.
+**Hugging Face:** no se ha podido completar una llamada real. La cuenta no dispone de créditos de inferencia y el proveedor devuelve `402`. Por eso se añadió NVIDIA como segundo proveedor real.
+
+**NVIDIA:** prueba real correcta el 23 de noviembre de 2026 con el comando anterior (exit 0; unos 8 s en total entre la predicción y la llamada, según `output/inference_nvidia/run.log`). Fragmento del resumen generado (`output/inference_nvidia/ai_summary.json`):
+
+> Número de predicciones realizadas: 113.794 estimaciones. Cobertura: se han estimado 236 líneas de autobús distintas. Volumen total estimado: el modelo proyecta un total de 42.335.105 viajeros para el mes de septiembre de 2026. Franja horaria con mayor demanda: H14. Línea con mayor demanda: la línea 034.
+
+Todas las cifras coinciden con `predictions.csv`: el modelo de lenguaje reformula los agregados que recibe y no inventa datos.
 
 ## Tests e integración continua
 
@@ -171,7 +181,7 @@ python -m pytest -q -c pytest.ini proyecto_ii/tests
 python -m pytest -q -c pytest.ini
 ```
 
-40 tests del Proyecto II, incluidos la carga e inferencia del modelo sklearn y el cliente IA simulado (402, reintento ante 503). El workflow `.github/workflows/ci.yml` los ejecuta con Python 3.12 en modo `mock`, sin red ni token.
+45 tests del Proyecto II, incluidos la carga e inferencia del modelo sklearn y el cliente IA con los SDK de Hugging Face y OpenAI simulados (falta de clave, 402 sin reintento, reintento ante 503 o timeout). El workflow `.github/workflows/ci.yml` los ejecuta con Python 3.12 en modo `mock`, sin red ni claves.
 
 ## Continuidad hacia el Proyecto III
 
