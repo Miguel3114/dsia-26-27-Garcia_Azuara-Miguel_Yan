@@ -48,7 +48,7 @@ def complete(provider: str, prompt: str, model: str | None = None) -> AIResponse
         call = lambda: client.chat.completions.create(
             model=chosen,
             messages=messages,
-            max_tokens=300,
+            max_tokens=512,
             extra_body={"chat_template_kwargs": {"enable_thinking": False}},  # sin razonamiento
         )
     else:
