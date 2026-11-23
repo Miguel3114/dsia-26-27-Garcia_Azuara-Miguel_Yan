@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 from sklearn.metrics import mean_absolute_error
 
-from proyecto_ii.ai_api_client import AIClientError, DEFAULT_HF_MODEL, complete
+from proyecto_ii.ai_api_client import AIClientError, DEFAULT_HF_MODEL, DEFAULT_NVIDIA_MODEL, complete
 from proyecto_ii.pipeline_emt import setup_logging
 from proyecto_ii.train import FEATURES, add_profiles, load_model, make_features
 
@@ -47,7 +47,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--provider", choices=["mock", "hf"], default="mock")
+    parser.add_argument("--provider", choices=["mock", "hf", "nvidia"], default="mock")
     parser.add_argument("--hf-model", default=None)
     args = parser.parse_args(argv)
     logger = setup_logging(args.output_dir / "run.log")
@@ -91,7 +91,8 @@ def main(argv: list[str] | None = None) -> int:
         json.dumps({
             "provider": response.provider,
             "task": "chat_completion",
-            "model": (args.hf_model or DEFAULT_HF_MODEL) if response.provider == "hf" else None,
+            "model": (args.hf_model or {"hf": DEFAULT_HF_MODEL, "nvidia": DEFAULT_NVIDIA_MODEL}[response.provider])
+            if response.provider != "mock" else None,
             "text": response.text,
         }, indent=2, ensure_ascii=False), encoding="utf-8"
     )

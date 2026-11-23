@@ -65,3 +65,19 @@ def test_predict_proveedor_falla(emt_frame, tmp_path, monkeypatch):
     assert main(["--input", str(csv), "--model", str(model_path), "--output-dir", str(out), "--provider", "hf"]) == 1
     assert not (out / "predictions.csv").exists()
     assert "sin créditos" in (out / "run.log").read_text(encoding="utf-8")
+
+
+def test_predict_cli_nvidia_registra_modelo(emt_frame, tmp_path, monkeypatch):
+    from proyecto_ii.ai_api_client import AIResponse
+    model, profiles, _ = train_model(transform(emt_frame))
+    model_path = tmp_path / "model.joblib"
+    save_model(model, profiles, model_path)
+    csv = tmp_path / "data.csv"
+    emt_frame.to_csv(csv, index=False)
+    monkeypatch.delenv("NVIDIA_MODEL", raising=False)
+    monkeypatch.setattr("proyecto_ii.predict.complete", lambda *a, **k: AIResponse("nvidia", "Resumen"))
+    out = tmp_path / "out"
+    assert main(["--input", str(csv), "--model", str(model_path), "--output-dir", str(out), "--provider", "nvidia"]) == 0
+    summary = json.loads((out / "ai_summary.json").read_text(encoding="utf-8"))
+    assert summary["provider"] == "nvidia"
+    assert summary["model"] == "nvidia/nemotron-3.5-super-vl-120b-a12b"
